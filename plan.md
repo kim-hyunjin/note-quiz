@@ -37,7 +37,7 @@
 - [ ] 의존성 추가
   - React Router v6
   - Axios
-  - (선택) Tailwind CSS 또는 CSS Modules 설정
+  - Tailwind CSS
 - [ ] 라우터 구성 (기본 페이지 경로 설정)
 - [ ] Axios 인스턴스 생성 (baseURL, 인터셉터 뼈대)
 
@@ -47,10 +47,10 @@
 
 - [ ] `users` 엔티티
   - `id`, `email`, `password_hash`, `nickname`, `created_at`
-- [ ] `uploads` 엔티티
-  - `id`, `upload_id` (UUID), `extracted_text` (TEXT), `created_at`
+- [ ] `notes` 엔티티
+  - `id`, `note_id` (UUID), `title`, `extracted_text` (TEXT), `created_at`
 - [ ] `quizzes` 엔티티
-  - `id`, `user_id` (nullable), `upload_id`, `title`, `source_filename`, `created_at`, `share_token`
+  - `id`, `user_id` (nullable), `note_id` (nullable), `created_at`, `share_token`
 - [ ] `questions` 엔티티
   - `id`, `quiz_id`, `body`, `options` (JSON), `answer`, `explanation`, `order_num`
 - [ ] `quiz_results` 엔티티
@@ -58,8 +58,10 @@
 - [ ] `wrong_answers` 엔티티
   - `id`, `user_id`, `question_id`, `resolved`, `created_at`
 - [ ] `notification_settings` 엔티티
-  - `id`, `user_id`, `study_reminder_enabled`, `reminder_time`, `daily_quiz_enabled`, `daily_quiz_time`
-- [ ] Repository 인터페이스 작성 (각 엔티티별)
+  - `id`, `user_id`, `daily_quiz_enabled`, `daily_quiz_time`
+- [ ] `notification_target_notes` 엔티티
+  - `id`, `notification_setting_id`, `note_id`, `question_count`
+- [ ] Repository 인터페이스 작성
 
 ---
 
@@ -90,22 +92,24 @@
 
 ---
 
-## Phase 4. 파일 업로드 & 텍스트 추출
+## Phase 4. 노트 업로드 & 텍스트 추출
 
 ### Backend
-- [ ] `POST /api/upload` 구현
+- [ ] `POST /api/notes` 구현
+  - 요청 시 노트 '제목(title)' 수신
   - 확장자 검증 (PDF, PNG, JPG, JPEG)
   - 크기 검증 (≤ 20MB)
   - PDF → Apache PDFBox 텍스트 추출
   - 이미지 → Tesseract OCR (kor + eng)
   - 텍스트 정제 (연속 공백·특수문자 정규화)
-  - `uploads` 테이블에 `upload_id` + `extracted_text` 저장
-  - 응답: `uploadId`, `filename`, `extractedTextLength`
+  - `notes` 테이블에 `note_id`, `title`, `extracted_text` 저장 (원본 파일 삭제/미저장)
+  - 응답: `noteId`, `title`, `extractedTextLength`
 
 ### Frontend
 - [ ] 홈 화면 (`/`) — 파일 업로드 UI
+  - 노트 제목 입력 필드 추가
   - 드래그 앤 드롭 + 클릭 업로드
-  - 업로드 후 파일명 및 썸네일 표시
+  - 업로드 후 파일명(임시) 및 썸네일 표시
   - 파일 형식/크기 오류 시 인라인 에러 메시지
 
 ---
@@ -121,7 +125,7 @@
   - 정규식으로 JSON 배열 추출
   - 파싱 실패 시 `TEXT_EXTRACT_FAILED` 에러 반환
 - [ ] `POST /api/quiz/generate` 구현
-  - `uploads` 테이블에서 추출 텍스트 조회
+  - `notes` 테이블에서 추출 텍스트 조회 (`noteId` 이용)
   - LLM 문제 생성
   - `quizzes` + `questions` 테이블 저장
   - 로그인 사용자: `user_id` 연결하여 내 퀴즈 목록에 자동 저장
@@ -129,7 +133,7 @@
 
 ### Frontend
 - [ ] 홈 화면 — 문제 수 선택 (5 / 10 / 20) 및 "문제 생성하기" 버튼
-- [ ] 로딩 화면 — 스피너 + "AI 분석 중..." 메시지
+- [ ] 로딩 화면 — 스피너 + [로딩] AI 분석 중... 메시지
 - [ ] 문제 생성 실패 시 모달 알림 + "다시 시도" 버튼
 
 ---
@@ -163,27 +167,28 @@
 ## Phase 7. 로그인 전용 기능
 
 ### Backend
-- [ ] `GET /api/my/quizzes` — 내 퀴즈 목록 조회
+- [ ] `GET /api/my/notes` — 내 노트 목록 조회
+- [ ] `GET /api/my/notes/{noteId}/quizzes` — 특정 노트의 퀴즈 목록 조회
 - [ ] `DELETE /api/my/quizzes/{quizId}` — 내 퀴즈 삭제
 - [ ] `POST /api/my/quizzes/{quizId}/share` — 공유 링크 생성
   - `share_token`: UUID 앞 6자리, 충돌 시 재생성 (최대 3회)
 - [ ] `GET /api/share/{shareToken}` — 공유 퀴즈 조회 (비로그인 포함)
 - [ ] `GET /api/my/wrong` — 오답 목록 조회
 - [ ] `PATCH /api/my/wrong/{wrongId}/resolve` — 오답 해결 처리
-- [ ] `GET /api/my/settings/notification` — 알림 설정 조회
-- [ ] `PUT /api/my/settings/notification` — 알림 설정 변경
+- [ ] `GET /api/my/settings/notification` — 알림 설정 및 대상 노트 목록 조회
+- [ ] `PUT /api/my/settings/notification` — 알림 설정 변경 (대상 노트 선택 및 문제 수 포함)
 
 ### Frontend
-- [ ] 마이페이지 내 퀴즈 목록 (`/my/quizzes`)
-  - 생성일시, 파일명, 문제 수 표시
-  - 풀기 / 공유 링크 복사 / 삭제 버튼
+- [ ] 마이페이지 내 노트 목록 (`/my/notes`)
+  - 노트 목록을 계층적으로 표시 (클릭 시 퀴즈 목록 확장)
+  - 퀴즈 항목: 생성일시, 문제 수, 풀기 / 공유 링크 복사 / 삭제 버튼
 - [ ] 오답 노트 (`/my/wrong`)
   - 오답 문제 목록
   - "오답 퀴즈 시작" 버튼
   - 오답 해결 시 목록에서 제거
 - [ ] 알림 설정 (`/my/settings`)
-  - 공부 리마인더 ON/OFF + 시간 선택
-  - 오늘의 퀴즈 ON/OFF + 시간 선택
+  - 오늘의 퀴즈 ON/OFF + 시간 선택 + 생성 문제 수 선택
+  - 오늘의 퀴즈 대상 노트 선택 (체크박스 목록)
   - 저장 버튼
 - [ ] 공유 퀴즈 화면 (`/share/:quizId`)
 
@@ -192,12 +197,9 @@
 ## Phase 8. 알림 스케줄러
 
 - [ ] Spring Scheduler 활성화 (`@EnableScheduling`)
-- [ ] 공부 리마인더 스케줄러
-  - 매분 실행, `reminder_time` 일치 사용자 조회
-  - JavaMailSender로 이메일 발송
 - [ ] 오늘의 퀴즈 스케줄러
   - 매분 실행, `daily_quiz_time` 일치 사용자 조회
-  - 저장된 파일 중 랜덤 1개 선택 → LLM 문제 생성 → 이메일 발송
+  - 사용자가 선택한 각 노트의 기존 추출 텍스트 재사용 → 설정된 개수만큼 LLM 문제 생성 → 독립된 `quizzes` 세트로 저장 → 이메일 발송
 - [ ] 발송 실패 시 로그 기록 처리
 
 ---
