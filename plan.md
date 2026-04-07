@@ -45,23 +45,23 @@
 
 ## Phase 2. DB 엔티티 & 스키마
 
-- [ ] `users` 엔티티
+- [x] `users` 엔티티
   - `id`, `email`, `password_hash`, `nickname`, `created_at`
-- [ ] `notes` 엔티티
+- [x] `notes` 엔티티
   - `id`, `note_id` (UUID), `title`, `extracted_text` (TEXT), `created_at`
-- [ ] `quizzes` 엔티티
+- [x] `quizzes` 엔티티
   - `id`, `user_id` (nullable), `note_id` (nullable), `created_at`, `share_token`
-- [ ] `questions` 엔티티
+- [x] `questions` 엔티티
   - `id`, `quiz_id`, `body`, `options` (JSON), `answer`, `explanation`, `order_num`
-- [ ] `quiz_results` 엔티티
+- [x] `quiz_results` 엔티티
   - `id`, `quiz_id`, `user_id` (nullable), `score`, `total`, `created_at`
-- [ ] `wrong_answers` 엔티티
+- [x] `wrong_answers` 엔티티
   - `id`, `user_id`, `question_id`, `resolved`, `created_at`
-- [ ] `notification_settings` 엔티티
+- [x] `notification_settings` 엔티티
   - `id`, `user_id`, `daily_quiz_enabled`, `daily_quiz_time`
-- [ ] `notification_target_notes` 엔티티
+- [x] `notification_target_notes` 엔티티
   - `id`, `notification_setting_id`, `note_id`, `question_count`
-- [ ] Repository 인터페이스 작성
+- [x] Repository 인터페이스 작성
 
 ---
 
