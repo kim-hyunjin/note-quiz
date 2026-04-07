@@ -45,38 +45,38 @@
 
 ## Phase 2. DB 엔티티 & 스키마
 
-- [ ] `users` 엔티티
+- [x] `users` 엔티티
   - `id`, `email`, `password_hash`, `nickname`, `created_at`
-- [ ] `notes` 엔티티
+- [x] `notes` 엔티티
   - `id`, `note_id` (UUID), `title`, `extracted_text` (TEXT), `created_at`
-- [ ] `quizzes` 엔티티
+- [x] `quizzes` 엔티티
   - `id`, `user_id` (nullable), `note_id` (nullable), `created_at`, `share_token`
-- [ ] `questions` 엔티티
+- [x] `questions` 엔티티
   - `id`, `quiz_id`, `body`, `options` (JSON), `answer`, `explanation`, `order_num`
-- [ ] `quiz_results` 엔티티
+- [x] `quiz_results` 엔티티
   - `id`, `quiz_id`, `user_id` (nullable), `score`, `total`, `created_at`
-- [ ] `wrong_answers` 엔티티
+- [x] `wrong_answers` 엔티티
   - `id`, `user_id`, `question_id`, `resolved`, `created_at`
-- [ ] `notification_settings` 엔티티
+- [x] `notification_settings` 엔티티
   - `id`, `user_id`, `daily_quiz_enabled`, `daily_quiz_time`
-- [ ] `notification_target_notes` 엔티티
+- [x] `notification_target_notes` 엔티티
   - `id`, `notification_setting_id`, `note_id`, `question_count`
-- [ ] Repository 인터페이스 작성
+- [x] Repository 인터페이스 작성
 
 ---
 
 ## Phase 3. 인증 (JWT)
 
 ### Backend
-- [ ] `POST /api/auth/signup` — 회원가입
+- [x] `POST /api/auth/signup` — 회원가입
   - 이메일 중복 검증
   - bcrypt 비밀번호 해시 저장
-- [ ] `POST /api/auth/login` — 로그인
+- [x] `POST /api/auth/login` — 로그인
   - Access Token 발급 (1시간, HS256)
   - Refresh Token 발급 (30일, HttpOnly 쿠키)
-- [ ] `POST /api/auth/refresh` — 토큰 갱신
+- [x] `POST /api/auth/refresh` — 토큰 갱신
   - 쿠키의 Refresh Token 검증 후 새 Access Token 발급
-- [ ] Spring Security 설정
+- [x] Spring Security 설정
   - JWT 필터 구성
   - 공개 경로 / 인증 필요 경로 분리
 
@@ -95,7 +95,7 @@
 ## Phase 4. 노트 업로드 & 텍스트 추출
 
 ### Backend
-- [ ] `POST /api/notes` 구현
+- [x] `POST /api/notes` 구현
   - 요청 시 노트 '제목(title)' 수신
   - 확장자 검증 (PDF, PNG, JPG, JPEG)
   - 크기 검증 (≤ 20MB)
@@ -117,14 +117,14 @@
 ## Phase 5. LLM 연동 & 퀴즈 생성
 
 ### Backend
-- [ ] Ollama 클라이언트 구현 (Spring WebClient)
+- [x] Ollama 클라이언트 구현 (Spring WebClient)
   - `POST http://localhost:11434/api/generate` 호출
   - 타임아웃 30초, 실패 시 1회 재시도
-- [ ] 프롬프트 템플릿 구성 (`{questionCount}`, `{extractedText}` 치환)
-- [ ] LLM 응답 파싱
+- [x] 프롬프트 템플릿 구성 (`{questionCount}`, `{extractedText}` 치환)
+- [x] LLM 응답 파싱
   - 정규식으로 JSON 배열 추출
   - 파싱 실패 시 `TEXT_EXTRACT_FAILED` 에러 반환
-- [ ] `POST /api/quiz/generate` 구현
+- [x] `POST /api/quiz/generate` 구현
   - `notes` 테이블에서 추출 텍스트 조회 (`noteId` 이용)
   - LLM 문제 생성
   - `quizzes` + `questions` 테이블 저장
@@ -141,12 +141,12 @@
 ## Phase 6. 퀴즈 풀기 & 결과 제출
 
 ### Backend
-- [ ] `GET /api/quiz/{quizId}` — 퀴즈 조회
-- [ ] `POST /api/quiz/{quizId}/result` — 결과 제출
+- [x] `GET /api/quiz/{quizId}` — 퀴즈 조회
+- [x] `POST /api/quiz/{quizId}/result` — 결과 제출
   - 답안 채점 후 `quiz_results` 저장
   - 로그인 사용자: 오답을 `wrong_answers` 저장
   - 응답: `resultId`, `score`, `total`, `wrongQuestions`
-- [ ] 비로그인 세션 처리
+- [x] 비로그인 세션 처리
   - 퀴즈 데이터를 `sessionStorage['nq_quiz_{quizId}']`에 저장
 
 ### Frontend
@@ -167,16 +167,16 @@
 ## Phase 7. 로그인 전용 기능
 
 ### Backend
-- [ ] `GET /api/my/notes` — 내 노트 목록 조회
-- [ ] `GET /api/my/notes/{noteId}/quizzes` — 특정 노트의 퀴즈 목록 조회
-- [ ] `DELETE /api/my/quizzes/{quizId}` — 내 퀴즈 삭제
-- [ ] `POST /api/my/quizzes/{quizId}/share` — 공유 링크 생성
+- [x] `GET /api/my/notes` — 내 노트 목록 조회
+- [x] `GET /api/my/notes/{noteId}/quizzes` — 특정 노트의 퀴즈 목록 조회
+- [x] `DELETE /api/my/quizzes/{quizId}` — 내 퀴즈 삭제
+- [x] `POST /api/my/quizzes/{quizId}/share` — 공유 링크 생성
   - `share_token`: UUID 앞 6자리, 충돌 시 재생성 (최대 3회)
-- [ ] `GET /api/share/{shareToken}` — 공유 퀴즈 조회 (비로그인 포함)
-- [ ] `GET /api/my/wrong` — 오답 목록 조회
-- [ ] `PATCH /api/my/wrong/{wrongId}/resolve` — 오답 해결 처리
-- [ ] `GET /api/my/settings/notification` — 알림 설정 및 대상 노트 목록 조회
-- [ ] `PUT /api/my/settings/notification` — 알림 설정 변경 (대상 노트 선택 및 문제 수 포함)
+- [x] `GET /api/share/{shareToken}` — 공유 퀴즈 조회 (비로그인 포함)
+- [x] `GET /api/my/wrong` — 오답 목록 조회
+- [x] `PATCH /api/my/wrong/{wrongId}/resolve` — 오답 해결 처리
+- [x] `GET /api/my/settings/notification` — 알림 설정 및 대상 노트 목록 조회
+- [x] `PUT /api/my/settings/notification` — 알림 설정 변경 (대상 노트 선택 및 문제 수 포함)
 
 ### Frontend
 - [ ] 마이페이지 내 노트 목록 (`/my/notes`)
@@ -196,11 +196,11 @@
 
 ## Phase 8. 알림 스케줄러
 
-- [ ] Spring Scheduler 활성화 (`@EnableScheduling`)
-- [ ] 오늘의 퀴즈 스케줄러
+- [x] Spring Scheduler 활성화 (`@EnableScheduling`)
+- [x] 오늘의 퀴즈 스케줄러
   - 매분 실행, `daily_quiz_time` 일치 사용자 조회
   - 사용자가 선택한 각 노트의 기존 추출 텍스트 재사용 → 설정된 개수만큼 LLM 문제 생성 → 독립된 `quizzes` 세트로 저장 → 이메일 발송
-- [ ] 발송 실패 시 로그 기록 처리
+- [x] 발송 실패 시 로그 기록 처리
 
 ---
 
