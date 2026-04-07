@@ -68,15 +68,15 @@
 ## Phase 3. 인증 (JWT)
 
 ### Backend
-- [ ] `POST /api/auth/signup` — 회원가입
+- [x] `POST /api/auth/signup` — 회원가입
   - 이메일 중복 검증
   - bcrypt 비밀번호 해시 저장
-- [ ] `POST /api/auth/login` — 로그인
+- [x] `POST /api/auth/login` — 로그인
   - Access Token 발급 (1시간, HS256)
   - Refresh Token 발급 (30일, HttpOnly 쿠키)
-- [ ] `POST /api/auth/refresh` — 토큰 갱신
+- [x] `POST /api/auth/refresh` — 토큰 갱신
   - 쿠키의 Refresh Token 검증 후 새 Access Token 발급
-- [ ] Spring Security 설정
+- [x] Spring Security 설정
   - JWT 필터 구성
   - 공개 경로 / 인증 필요 경로 분리
 
