@@ -765,7 +765,7 @@ VITE_API_BASE_URL=http://localhost:8080
 ```
 1. H2 스키마 자동 생성 (애플리케이션 시작 시 자동 처리)
 2. Ollama 설치 및 모델 pull
-     └─ ollama pull llama3
+     └─ ollama pull gemma4
 3. Backend 실행
      └─ 환경변수 주입 후 ./gradlew bootRun
 4. Frontend 실행
