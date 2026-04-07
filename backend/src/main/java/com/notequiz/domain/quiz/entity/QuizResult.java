@@ -8,6 +8,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "quiz_results")
 @Getter
@@ -32,11 +35,18 @@ public class QuizResult extends BaseTimeEntity {
     @Column(nullable = false)
     private Integer total;
 
+    @OneToMany(mappedBy = "quizResult", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WrongAnswer> wrongAnswers = new ArrayList<>();
+
     @Builder
     public QuizResult(Quiz quiz, User user, Integer score, Integer total) {
         this.quiz = quiz;
         this.user = user;
         this.score = score;
         this.total = total;
+    }
+
+    public void addWrongAnswer(WrongAnswer wrongAnswer) {
+        this.wrongAnswers.add(wrongAnswer);
     }
 }

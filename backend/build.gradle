@@ -43,9 +43,6 @@ dependencies {
     // PDF 파싱
     implementation 'org.apache.pdfbox:pdfbox:3.0.1'
 
-    // Tesseract OCR
-    implementation 'net.sourceforge.tess4j:tess4j:5.10.0'
-
     // Lombok
     compileOnly 'org.projectlombok:lombok:1.18.36'
     annotationProcessor 'org.projectlombok:lombok:1.18.36'

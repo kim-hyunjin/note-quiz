@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.notequiz.common.exception.ApiException;
 import com.notequiz.common.exception.ErrorCode;
+import com.notequiz.common.client.OllamaClient;
 import com.notequiz.domain.note.entity.Note;
 import com.notequiz.domain.note.repository.NoteRepository;
 import com.notequiz.domain.quiz.dto.*;
@@ -18,6 +19,7 @@ import com.notequiz.domain.user.entity.User;
 import com.notequiz.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -39,12 +41,40 @@ public class QuizService {
     private final OllamaClient ollamaClient;
     private final ObjectMapper objectMapper;
 
+    @Value("${ollama.dummy-mode:false}")
+    private boolean dummyMode;
+
     public QuizResponse generateQuiz(QuizGenerateRequest request) {
         Note note = noteRepository.findByNoteId(request.getNoteId())
                 .orElseThrow(() -> new ApiException(ErrorCode.UPLOAD_NOT_FOUND));
 
-        String prompt = createPrompt(note.getExtractedText(), request.getQuestionCount());
-        String llmResponse = ollamaClient.generate(prompt);
+        String llmResponse;
+        if (dummyMode) {
+            log.info("Ollama dummy mode is enabled. Returning hardcoded quiz JSON.");
+            llmResponse = "[" +
+                          "  {" +
+                          "    \"body\": \"광합성이 일어나는 주요 세포 소기관은 무엇인가요?\"," +
+                          "    \"options\": [\"미토콘드리아\", \"엽록체\", \"리보솜\", \"핵\"]," +
+                          "    \"answer\": 1," +
+                          "    \"explanation\": \"광합성은 식물 세포의 엽록체에서 일어나는 과정입니다.\"" +
+                          "  }," +
+                          "  {" +
+                          "    \"body\": \"광합성의 명반응이 일어나는 장소는 어디인가요?\"," +
+                          "    \"options\": [\"스트로마\", \"틸라코이드\", \"외막\", \"내막\"]," +
+                          "    \"answer\": 1," +
+                          "    \"explanation\": \"명반응은 엽록체의 틸라코이드 막에서 일어납니다.\"" +
+                          "  }," +
+                          "  {" +
+                          "    \"body\": \"광합성의 결과로 생성되는 주요 유기물은 무엇인가요?\"," +
+                          "    \"options\": [\"단백질\", \"지방\", \"포도당\", \"핵산\"]," +
+                          "    \"answer\": 2," +
+                          "    \"explanation\": \"광합성을 통해 이산화탄소와 물로부터 포도당이 합성됩니다.\"" +
+                          "  }" +
+                          "]";
+        } else {
+            String prompt = createPrompt(note.getExtractedText(), request.getQuestionCount());
+            llmResponse = ollamaClient.generate(prompt);
+        }
 
         List<QuestionData> questionDataList = parseLlmResponse(llmResponse);
 
@@ -84,6 +114,12 @@ public class QuizService {
         return QuizResponse.from(quiz);
     }
 
+    public QuizResultResponse getQuizResult(Long resultId) {
+        QuizResult result = quizResultRepository.findById(resultId)
+                .orElseThrow(() -> new ApiException(ErrorCode.RESULT_NOT_FOUND));
+        return convertToResponse(result);
+    }
+
     public QuizResultResponse submitResult(Long quizId, QuizResultRequest request) {
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new ApiException(ErrorCode.QUIZ_NOT_FOUND));
@@ -96,25 +132,13 @@ public class QuizService {
         }
 
         int score = 0;
-        User currentUser = getCurrentUser();
-
         for (int i = 0; i < questions.size(); i++) {
-            Question question = questions.get(i);
-            Integer userAnswer = userAnswers.get(i);
-
-            if (question.getAnswer().equals(userAnswer)) {
+            if (questions.get(i).getAnswer().equals(userAnswers.get(i))) {
                 score++;
-            } else if (currentUser != null) {
-                // Save wrong answer for logged-in user
-                WrongAnswer wrongAnswer = WrongAnswer.builder()
-                        .user(currentUser)
-                        .question(question)
-                        .resolved(false)
-                        .build();
-                wrongAnswerRepository.save(wrongAnswer);
             }
         }
 
+        User currentUser = getCurrentUser();
         QuizResult result = QuizResult.builder()
                 .quiz(quiz)
                 .user(currentUser)
@@ -122,12 +146,46 @@ public class QuizService {
                 .total(questions.size())
                 .build();
 
+        for (int i = 0; i < questions.size(); i++) {
+            Question question = questions.get(i);
+            Integer userAnswer = userAnswers.get(i);
+
+            if (!question.getAnswer().equals(userAnswer)) {
+                WrongAnswer wrongAnswer = WrongAnswer.builder()
+                        .user(currentUser)
+                        .quiz(quiz)
+                        .quizResult(result)
+                        .question(question)
+                        .userAnswer(userAnswer)
+                        .resolved(false)
+                        .build();
+                result.addWrongAnswer(wrongAnswer);
+            }
+        }
+
         quizResultRepository.save(result);
 
+        return convertToResponse(result);
+    }
+
+    private QuizResultResponse convertToResponse(QuizResult result) {
+        List<QuizResultResponse.WrongQuestionResponse> wrongQuestions = result.getWrongAnswers().stream()
+                .map(wa -> QuizResultResponse.WrongQuestionResponse.builder()
+                        .id(wa.getQuestion().getId())
+                        .body(wa.getQuestion().getBody())
+                        .options(wa.getQuestion().getOptions())
+                        .answer(wa.getQuestion().getAnswer())
+                        .userAnswer(wa.getUserAnswer())
+                        .explanation(wa.getQuestion().getExplanation())
+                        .build())
+                .toList();
+
         return QuizResultResponse.builder()
-                .resultId(result.getId())
-                .score(score)
-                .total(questions.size())
+                .id(result.getId())
+                .quizId(result.getQuiz().getId())
+                .score(result.getScore())
+                .total(result.getTotal())
+                .wrongQuestions(wrongQuestions)
                 .build();
     }
 

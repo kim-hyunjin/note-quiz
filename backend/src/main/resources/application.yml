@@ -42,5 +42,6 @@ jwt:
 
 ollama:
   base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
-  model: ${OLLAMA_MODEL:llama3}
+  model: ${OLLAMA_MODEL:gemma4}
   timeout: ${OLLAMA_TIMEOUT:30}
+  dummy-mode: ${OLLAMA_DUMMY_MODE:true}

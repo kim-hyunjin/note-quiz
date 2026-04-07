@@ -50,7 +50,7 @@ const Home = () => {
       });
 
       setStatus('success');
-      navigate(`/quiz/${genRes.data.quizId}`);
+      navigate(`/quiz/${genRes.data.id}`);
     } catch (err: any) {
       setError(err.response?.data?.message || '처리 중 오류가 발생했습니다.');
       setStatus('error');

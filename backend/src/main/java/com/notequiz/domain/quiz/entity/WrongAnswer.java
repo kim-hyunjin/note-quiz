@@ -19,20 +19,34 @@ public class WrongAnswer extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = true)
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "quiz_id")
+    private Quiz quiz;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "quiz_result_id")
+    private QuizResult quizResult;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", nullable = false)
     private Question question;
 
     @Column(nullable = false)
+    private Integer userAnswer;
+
+    @Column(nullable = false)
     private Boolean resolved;
 
     @Builder
-    public WrongAnswer(User user, Question question, Boolean resolved) {
+    public WrongAnswer(User user, Quiz quiz, QuizResult quizResult, Question question, Integer userAnswer, Boolean resolved) {
         this.user = user;
+        this.quiz = quiz;
+        this.quizResult = quizResult;
         this.question = question;
+        this.userAnswer = userAnswer;
         this.resolved = resolved != null ? resolved : false;
     }
 

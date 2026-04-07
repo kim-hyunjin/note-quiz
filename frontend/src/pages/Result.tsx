@@ -19,7 +19,7 @@ interface ResultData {
 }
 
 const Result = () => {
-  const { resultId } = useParams();
+  const { resultId: id } = useParams();
   const [result, setResult] = useState<ResultData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -27,7 +27,7 @@ const Result = () => {
   useEffect(() => {
     const fetchResult = async () => {
       try {
-        const res = await api.get(`/quiz/result/${resultId}`);
+        const res = await api.get(`/quiz/result/${id}`);
         setResult(res.data);
       } catch (err) {
         setError('결과를 불러오는 데 실패했습니다.');
@@ -36,7 +36,7 @@ const Result = () => {
       }
     };
     fetchResult();
-  }, [resultId]);
+  }, [id]);
 
   if (isLoading) return <div className="nq-container items-center justify-center"><Loader2 className="animate-spin text-[var(--accent)]" size={48} /></div>;
   if (error) return <div className="nq-container items-center justify-center text-red-500">{error}</div>;

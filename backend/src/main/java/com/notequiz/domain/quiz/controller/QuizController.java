@@ -41,4 +41,10 @@ public class QuizController {
         QuizResponse response = quizService.getSharedQuiz(shareToken);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/result/{resultId}")
+    public ResponseEntity<QuizResultResponse> getQuizResult(@PathVariable("resultId") Long resultId) {
+        QuizResultResponse response = quizService.getQuizResult(resultId);
+        return ResponseEntity.ok(response);
+    }
 }

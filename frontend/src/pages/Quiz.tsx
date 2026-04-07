@@ -60,7 +60,7 @@ const Quiz = () => {
         const res = await api.post(`/quiz/${quizId}/result`, {
           answers,
         });
-        navigate(`/result/${res.data.resultId}`);
+        navigate(`/result/${res.data.id}`);
       } catch (err) {
         alert('결과 제출 중 오류가 발생했습니다.');
       }
