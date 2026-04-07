@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { LogOut, User, BookOpen, Settings, AlertCircle } from 'lucide-react';
+import { LogOut, BookOpen, Settings, AlertCircle } from 'lucide-react';
 
 interface HeaderProps {
   isLoggedIn: boolean;
