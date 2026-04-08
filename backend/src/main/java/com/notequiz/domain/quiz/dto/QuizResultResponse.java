@@ -9,7 +9,8 @@ import java.util.List;
 @Builder
 public class QuizResultResponse {
     private Long id;
-    private Long quizId;
+    private String resultId;
+    private String quizId;
     private int score;
     private int total;
     private List<WrongQuestionResponse> wrongQuestions;

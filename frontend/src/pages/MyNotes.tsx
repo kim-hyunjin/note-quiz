@@ -5,6 +5,7 @@ import api from '../api/axios';
 
 interface QuizInfo {
   id: number;
+  quizId: string;
   createdAt: string;
   questionCount: number;
 }
@@ -49,19 +50,19 @@ const MyNotes = () => {
     setExpandedNotes(newExpanded);
   };
 
-  const handleDeleteQuiz = async (id: number, noteId: number) => {
+  const handleDeleteQuiz = async (quizId: string, noteId: number) => {
     if (!confirm('퀴즈를 삭제하시겠습니까?')) return;
     try {
-      await api.delete(`/my/quizzes/${id}`);
-      setNotes(notes.map(n => n.id === noteId ? { ...n, quizzes: n.quizzes.filter(q => q.id !== id) } : n));
+      await api.delete(`/my/quizzes/${quizId}`);
+      setNotes(notes.map(n => n.id === noteId ? { ...n, quizzes: n.quizzes.filter(q => q.quizId !== quizId) } : n));
     } catch (err) {
       alert('삭제에 실패했습니다.');
     }
   };
 
-  const handleShare = async (id: number) => {
+  const handleShare = async (quizId: string) => {
     try {
-      const res = await api.post(`/my/quizzes/${id}/share`);
+      const res = await api.post(`/my/quizzes/${quizId}/share`);
       const shareUrl = `${window.location.origin}/share/${res.data.shareToken}`;
       await navigator.clipboard.writeText(shareUrl);
       alert('공유 링크가 클립보드에 복사되었습니다.');
@@ -109,19 +110,19 @@ const MyNotes = () => {
                     <p className="text-sm text-center py-4 text-[var(--text)]">생성된 퀴즈가 없습니다.</p>
                   ) : (
                     note.quizzes.map((quiz) => (
-                      <div key={quiz.id} className="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4 flex items-center justify-between shadow-sm">
+                      <div key={quiz.id} className="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4 flex items-center justify-between shadow-sm gap-2">
                         <div>
                           <p className="font-semibold">{quiz.questionCount}문제 퀴즈</p>
                           <p className="text-xs text-[var(--text)]">{new Date(quiz.createdAt).toLocaleString()}</p>
                         </div>
                         <div className="flex gap-2">
-                          <Link to={`/quiz/${quiz.id}`} className="nq-button nq-button-secondary py-1.5 flex items-center gap-1 text-sm">
+                          <Link to={`/quiz/${quiz.quizId}`} className="nq-button nq-button-secondary py-1.5 flex items-center gap-1 text-sm">
                             <Play size={14} /> 풀기
                           </Link>
-                          <button onClick={() => handleShare(quiz.id)} className="nq-button border border-[var(--border)] hover:border-[var(--accent-border)] py-1.5 flex items-center gap-1 text-sm">
+                          <button onClick={() => handleShare(quiz.quizId)} className="nq-button border border-[var(--border)] hover:border-[var(--accent-border)] py-1.5 flex items-center gap-1 text-sm">
                             <Share2 size={14} /> 공유
                           </button>
-                          <button onClick={() => handleDeleteQuiz(quiz.id, note.id)} className="nq-button border border-red-100 text-red-500 hover:bg-red-50 py-1.5 flex items-center gap-1 text-sm">
+                          <button onClick={() => handleDeleteQuiz(quiz.quizId, note.id)} className="nq-button border border-red-100 text-red-500 hover:bg-red-50 py-1.5 flex items-center gap-1 text-sm">
                             <Trash2 size={14} /> 삭제
                           </button>
                         </div>

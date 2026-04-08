@@ -5,6 +5,7 @@ import api from '../api/axios';
 
 interface SharedQuiz {
   id: number;
+  quizId: string;
   title: string;
   questionCount: number;
 }
@@ -42,7 +43,7 @@ const Share = () => {
         <h1 className="text-3xl font-bold mb-4">{quiz.title}</h1>
         <p className="text-[var(--text)] mb-8">누군가가 당신에게 복습 퀴즈를 보냈습니다.<br />{quiz.questionCount}개의 문제가 준비되어 있습니다.</p>
         
-        <Link to={`/quiz/${quiz.id}`} className="nq-button nq-button-primary w-full py-4 flex items-center justify-center gap-2 text-lg">
+        <Link to={`/quiz/${quiz.quizId}`} className="nq-button nq-button-primary w-full py-4 flex items-center justify-center gap-2 text-lg">
           <Play size={20} />
           퀴즈 시작하기
         </Link>

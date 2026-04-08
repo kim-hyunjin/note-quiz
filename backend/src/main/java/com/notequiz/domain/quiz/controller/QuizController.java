@@ -23,14 +23,14 @@ public class QuizController {
     }
 
     @GetMapping("/{quizId}")
-    public ResponseEntity<QuizResponse> getQuiz(@PathVariable("quizId") Long quizId) {
+    public ResponseEntity<QuizResponse> getQuiz(@PathVariable("quizId") String quizId) {
         QuizResponse response = quizService.getQuiz(quizId);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{quizId}/result")
     public ResponseEntity<QuizResultResponse> submitResult(
-            @PathVariable("quizId") Long quizId,
+            @PathVariable("quizId") String quizId,
             @RequestBody QuizResultRequest request) {
         QuizResultResponse response = quizService.submitResult(quizId, request);
         return ResponseEntity.ok(response);
@@ -43,7 +43,7 @@ public class QuizController {
     }
 
     @GetMapping("/result/{resultId}")
-    public ResponseEntity<QuizResultResponse> getQuizResult(@PathVariable("resultId") Long resultId) {
+    public ResponseEntity<QuizResultResponse> getQuizResult(@PathVariable("resultId") String resultId) {
         QuizResultResponse response = quizService.getQuizResult(resultId);
         return ResponseEntity.ok(response);
     }

@@ -62,14 +62,14 @@ class QuizServiceTest {
     @DisplayName("퀴즈 결과를 제출하고 점수를 반환한다")
     void submitResult() {
         // given
-        Long quizId = 1L;
+        String quizId = "test-quiz-id";
         Quiz quiz = Quiz.builder().build();
         Question q1 = Question.builder().body("Q1").answer(0).orderNum(1).build();
         Question q2 = Question.builder().body("Q2").answer(1).orderNum(2).build();
         quiz.addQuestion(q1);
         quiz.addQuestion(q2);
 
-        given(quizRepository.findById(quizId)).willReturn(Optional.of(quiz));
+        given(quizRepository.findByQuizId(quizId)).willReturn(Optional.of(quiz));
 
         QuizResultRequest request = new QuizResultRequest();
         setField(request, "answers", List.of(0, 0)); // q1 correct (0==0), q2 wrong (0!=1)

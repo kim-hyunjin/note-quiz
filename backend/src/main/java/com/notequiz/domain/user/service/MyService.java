@@ -55,9 +55,9 @@ public class MyService {
                 .collect(Collectors.toList());
     }
 
-    public void deleteQuiz(Long quizId) {
+    public void deleteQuiz(String quizId) {
         User user = getRequiredCurrentUser();
-        Quiz quiz = quizRepository.findById(quizId)
+        Quiz quiz = quizRepository.findByQuizId(quizId)
                 .orElseThrow(() -> new ApiException(ErrorCode.QUIZ_NOT_FOUND));
         
         if (quiz.getUser() == null || !quiz.getUser().getId().equals(user.getId())) {
@@ -67,9 +67,9 @@ public class MyService {
         quizRepository.delete(quiz);
     }
 
-    public String shareQuiz(Long quizId) {
+    public String shareQuiz(String quizId) {
         User user = getRequiredCurrentUser();
-        Quiz quiz = quizRepository.findById(quizId)
+        Quiz quiz = quizRepository.findByQuizId(quizId)
                 .orElseThrow(() -> new ApiException(ErrorCode.QUIZ_NOT_FOUND));
         
         if (quiz.getUser() == null || !quiz.getUser().getId().equals(user.getId())) {

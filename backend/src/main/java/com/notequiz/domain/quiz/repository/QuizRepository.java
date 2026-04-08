@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.List;
 
 public interface QuizRepository extends JpaRepository<Quiz, Long> {
+    Optional<Quiz> findByQuizId(String quizId);
     Optional<Quiz> findByShareToken(String shareToken);
     List<Quiz> findByNoteAndUser(Note note, User user);
 }

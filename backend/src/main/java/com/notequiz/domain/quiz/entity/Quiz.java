@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "quizzes")
@@ -21,6 +22,9 @@ public class Quiz extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "quiz_id", nullable = false, unique = true)
+    private String quizId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -38,6 +42,7 @@ public class Quiz extends BaseTimeEntity {
 
     @Builder
     public Quiz(User user, Note note, String shareToken) {
+        this.quizId = UUID.randomUUID().toString();
         this.user = user;
         this.note = note;
         this.shareToken = shareToken;

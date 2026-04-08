@@ -102,8 +102,8 @@ public class QuizService {
         return QuizResponse.from(quiz);
     }
 
-    public QuizResponse getQuiz(Long quizId) {
-        Quiz quiz = quizRepository.findById(quizId)
+    public QuizResponse getQuiz(String quizId) {
+        Quiz quiz = quizRepository.findByQuizId(quizId)
                 .orElseThrow(() -> new ApiException(ErrorCode.QUIZ_NOT_FOUND));
         return QuizResponse.from(quiz);
     }
@@ -114,14 +114,14 @@ public class QuizService {
         return QuizResponse.from(quiz);
     }
 
-    public QuizResultResponse getQuizResult(Long resultId) {
-        QuizResult result = quizResultRepository.findById(resultId)
+    public QuizResultResponse getQuizResult(String resultId) {
+        QuizResult result = quizResultRepository.findByResultId(resultId)
                 .orElseThrow(() -> new ApiException(ErrorCode.RESULT_NOT_FOUND));
         return convertToResponse(result);
     }
 
-    public QuizResultResponse submitResult(Long quizId, QuizResultRequest request) {
-        Quiz quiz = quizRepository.findById(quizId)
+    public QuizResultResponse submitResult(String quizId, QuizResultRequest request) {
+        Quiz quiz = quizRepository.findByQuizId(quizId)
                 .orElseThrow(() -> new ApiException(ErrorCode.QUIZ_NOT_FOUND));
 
         List<Question> questions = quiz.getQuestions();
@@ -182,7 +182,8 @@ public class QuizService {
 
         return QuizResultResponse.builder()
                 .id(result.getId())
-                .quizId(result.getQuiz().getId())
+                .resultId(result.getResultId())
+                .quizId(result.getQuiz().getQuizId())
                 .score(result.getScore())
                 .total(result.getTotal())
                 .wrongQuestions(wrongQuestions)

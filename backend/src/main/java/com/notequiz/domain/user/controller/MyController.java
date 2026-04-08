@@ -29,13 +29,13 @@ public class MyController {
     }
 
     @DeleteMapping("/quizzes/{quizId}")
-    public ResponseEntity<Void> deleteQuiz(@PathVariable("quizId") Long quizId) {
+    public ResponseEntity<Void> deleteQuiz(@PathVariable("quizId") String quizId) {
         myService.deleteQuiz(quizId);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/quizzes/{quizId}/share")
-    public ResponseEntity<String> shareQuiz(@PathVariable("quizId") Long quizId) {
+    public ResponseEntity<String> shareQuiz(@PathVariable("quizId") String quizId) {
         return ResponseEntity.ok(myService.shareQuiz(quizId));
     }
 

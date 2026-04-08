@@ -2,13 +2,18 @@ import { useState, useEffect } from 'react';
 import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import api from '../api/axios';
 
-interface WrongAnswer {
+interface Question {
   id: number;
-  questionId: number;
   body: string;
   options: string[];
   answer: number;
   explanation: string;
+  orderNum: number;
+}
+
+interface WrongAnswer {
+  id: number;
+  question: Question;
   resolved: boolean;
 }
 
@@ -60,13 +65,13 @@ const WrongAnswers = () => {
         <div className="flex flex-col gap-6">
           {wrongAnswers.map((wa) => (
             <div key={wa.id} className="bg-[var(--bg)] border border-[var(--border)] rounded-2xl p-6 shadow-sm">
-              <p className="font-semibold text-lg mb-4">{wa.body}</p>
+              <p className="font-semibold text-lg mb-4">{wa.question.body}</p>
               <div className="grid gap-2 mb-6">
-                {wa.options.map((opt, i) => (
+                {wa.question.options.map((opt, i) => (
                   <div
                     key={i}
                     className={`p-3 rounded-lg border text-sm ${
-                      i === wa.answer
+                      i === wa.question.answer
                         ? 'border-green-500 bg-green-50 text-green-700 font-medium'
                         : 'border-[var(--border)]'
                     }`}
@@ -77,7 +82,7 @@ const WrongAnswers = () => {
               </div>
               <div className="p-4 bg-gray-50 border border-gray-100 rounded-lg mb-6">
                 <p className="text-sm font-bold text-gray-700 mb-1">해설</p>
-                <p className="text-sm text-gray-600">{wa.explanation}</p>
+                <p className="text-sm text-gray-600">{wa.question.explanation}</p>
               </div>
               <div className="flex justify-end">
                 <button
