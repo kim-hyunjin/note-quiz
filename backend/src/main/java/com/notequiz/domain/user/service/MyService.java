@@ -115,7 +115,8 @@ public class MyService {
     public NotificationSettingResponse getNotificationSettings() {
         User user = getRequiredCurrentUser();
         NotificationSetting setting = getOrCreateNotificationSetting(user);
-        return NotificationSettingResponse.from(setting);
+        List<Note> allNotes = noteRepository.findByUser(user);
+        return NotificationSettingResponse.from(setting, allNotes);
     }
 
     public NotificationSettingResponse updateNotificationSettings(NotificationSettingResponse request) {
@@ -127,16 +128,19 @@ public class MyService {
         
         if (request.getTargetNotes() != null) {
             for (NotificationSettingResponse.TargetNoteDto dto : request.getTargetNotes()) {
-                Note note = noteRepository.findByNoteId(dto.getNoteId())
-                        .orElseThrow(() -> new ApiException(ErrorCode.UPLOAD_NOT_FOUND));
-                setting.addTargetNote(NotificationTargetNote.builder()
-                        .note(note)
-                        .questionCount(dto.getQuestionCount())
-                        .build());
+                if (Boolean.TRUE.equals(dto.getSelected())) {
+                    Note note = noteRepository.findByNoteId(dto.getNoteId())
+                            .orElseThrow(() -> new ApiException(ErrorCode.UPLOAD_NOT_FOUND));
+                    setting.addTargetNote(NotificationTargetNote.builder()
+                            .note(note)
+                            .questionCount(dto.getQuestionCount())
+                            .build());
+                }
             }
         }
         
-        return NotificationSettingResponse.from(setting);
+        List<Note> allNotes = noteRepository.findByUser(user);
+        return NotificationSettingResponse.from(setting, allNotes);
     }
 
     private User getRequiredCurrentUser() {

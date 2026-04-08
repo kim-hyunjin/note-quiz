@@ -11,10 +11,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -30,12 +32,13 @@ public class NotificationScheduler {
     private final JavaMailSender mailSender;
 
     @Scheduled(cron = "0 * * * * *") // Every minute
+    @Transactional
     public void sendDailyQuizzes() {
         LocalTime now = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
         log.info("Checking daily quizzes for time: {}", now);
 
-        List<NotificationSetting> settings = notificationSettingRepository.findAll().stream()
-                .filter(s -> s.getDailyQuizEnabled() && s.getDailyQuizTime() != null &&
+        List<NotificationSetting> settings = notificationSettingRepository.findAllByDailyQuizEnabledTrue().stream()
+                .filter(s -> s.getDailyQuizTime() != null &&
                         s.getDailyQuizTime().truncatedTo(ChronoUnit.MINUTES).equals(now))
                 .toList();
 
@@ -58,14 +61,14 @@ public class NotificationScheduler {
             emailBody.append("오늘의 퀴즈가 도착했습니다!\n\n");
 
             for (NotificationTargetNote target : setting.getTargetNotes()) {
-                QuizGenerateRequest request = new QuizGenerateRequest();
-                // Set fields using reflection or similar if no public constructor/setter
-                setField(request, "noteId", target.getNote().getNoteId());
-                setField(request, "questionCount", target.getQuestionCount());
+                QuizGenerateRequest request = new QuizGenerateRequest(
+                        target.getNote().getNoteId(),
+                        target.getQuestionCount()
+                );
 
                 QuizResponse quiz = quizService.generateQuiz(request);
-                emailBody.append(String.format("- %s: http://localhost:5173/quiz/%d\n",
-                        target.getNote().getTitle(), quiz.getId()));
+                emailBody.append(String.format("- %s: http://localhost:5173/quiz/%s\n",
+                        target.getNote().getTitle(), quiz.getQuizId()));
             }
 
             sendEmail(user.getEmail(), "[NoteQuiz] 오늘의 퀴즈", emailBody.toString());
@@ -77,6 +80,16 @@ public class NotificationScheduler {
     }
 
     private void sendEmail(String to, String subject, String body) {
+        if (mailSender instanceof JavaMailSenderImpl impl) {
+            String username = impl.getUsername();
+            String password = impl.getPassword();
+            if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
+                log.warn("Email credentials not configured. Skipping email to: {}", to);
+                log.info("Email content:\nSubject: {}\nBody: {}", subject, body);
+                return;
+            }
+        }
+
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(to);
@@ -85,16 +98,6 @@ public class NotificationScheduler {
             mailSender.send(message);
         } catch (Exception e) {
             log.error("Failed to send email to: {}", to, e);
-        }
-    }
-
-    private void setField(Object target, String fieldName, Object value) {
-        try {
-            java.lang.reflect.Field field = target.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(target, value);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 }
