@@ -2,6 +2,7 @@ package com.notequiz.domain.quiz.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.notequiz.common.client.OllamaClient;
 import com.notequiz.domain.note.entity.Note;
 import com.notequiz.domain.note.repository.NoteRepository;
 import com.notequiz.domain.quiz.dto.QuizGenerateRequest;

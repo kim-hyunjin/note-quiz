@@ -216,7 +216,7 @@
 | 항목 | 내용 |
 |------|------|
 | 프레임워크 | Spring Boot 3.x |
-| 언어 | Java 17+ |
+| 언어 | Java 25 |
 | 인증 | Spring Security + JWT |
 | PDF 파싱 | Apache PDFBox |
 | 이미지 OCR | Tesseract (tess4j) |

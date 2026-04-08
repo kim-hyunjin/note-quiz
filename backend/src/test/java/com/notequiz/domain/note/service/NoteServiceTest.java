@@ -1,8 +1,9 @@
 package com.notequiz.domain.note.service;
 
+import com.notequiz.common.client.OllamaClient;
 import com.notequiz.domain.note.dto.NoteUploadResponse;
 import com.notequiz.domain.note.repository.NoteRepository;
-import net.sourceforge.tess4j.Tesseract;
+import com.notequiz.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +26,10 @@ class NoteServiceTest {
     private NoteRepository noteRepository;
 
     @Mock
-    private Tesseract tesseract;
+    private UserRepository userRepository;
+
+    @Mock
+    private OllamaClient ollamaClient;
 
     @InjectMocks
     @Spy
@@ -51,7 +55,7 @@ class NoteServiceTest {
 
     @Test
     @DisplayName("이미지 파일에서 텍스트를 추출하고 저장한다")
-    void uploadImageNote() throws IOException, net.sourceforge.tess4j.TesseractException {
+    void uploadImageNote() throws IOException {
         // given
         String title = "Test Image";
         MockMultipartFile file = new MockMultipartFile(

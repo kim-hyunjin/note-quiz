@@ -18,7 +18,7 @@
 ## 🛠 기술 스택
 
 ### Backend
-- **Framework**: Spring Boot 3.3.4 (Java 22)
+- **Framework**: Spring Boot 3.3.4 (Java 25)
 - **Security**: Spring Security + JWT (Access/Refresh Token)
 - **Database**: H2 Database (File Mode)
 - **Data JPA**: Spring Data JPA
@@ -44,7 +44,7 @@
 
 프로젝트를 실행하기 위해 다음 소프트웨어가 설치되어 있어야 합니다.
 
-1. **Java 22** 이상
+1. **Java 25** 이상
 2. **Node.js 20** 이상 (npm 포함)
 3. **Ollama**: 설치 후 모델 다운로드가 필요합니다.
    ```bash

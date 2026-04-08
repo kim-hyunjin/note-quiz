@@ -20,7 +20,7 @@
 
 ### Backend (Spring Boot)
 
-- [x] Spring Boot 프로젝트 생성 (Gradle, Java 22)
+- [x] Spring Boot 프로젝트 생성 (Gradle, Java 25)
 - [x] 의존성 추가
   - Spring Web, Spring Security, Spring Data JPA
   - H2 Database
