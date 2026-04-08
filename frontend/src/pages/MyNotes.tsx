@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Loader2, FileText, ChevronRight, ChevronDown, Play, Share2, Trash2 } from 'lucide-react';
+import { Loader2, FileText, ChevronRight, ChevronDown, Play, Share2 } from 'lucide-react';
 import api from '../api/axios';
 
 interface QuizInfo {
@@ -48,16 +48,6 @@ const MyNotes = () => {
     if (newExpanded.has(id)) newExpanded.delete(id);
     else newExpanded.add(id);
     setExpandedNotes(newExpanded);
-  };
-
-  const handleDeleteQuiz = async (quizId: string, noteId: number) => {
-    if (!confirm('퀴즈를 삭제하시겠습니까?')) return;
-    try {
-      await api.delete(`/my/quizzes/${quizId}`);
-      setNotes(notes.map(n => n.id === noteId ? { ...n, quizzes: n.quizzes.filter(q => q.quizId !== quizId) } : n));
-    } catch (err) {
-      alert('삭제에 실패했습니다.');
-    }
   };
 
   const handleShare = async (quizId: string) => {
@@ -121,9 +111,6 @@ const MyNotes = () => {
                           </Link>
                           <button onClick={() => handleShare(quiz.quizId)} className="nq-button border border-[var(--border)] hover:border-[var(--accent-border)] py-1.5 flex items-center gap-1 text-sm">
                             <Share2 size={14} /> 공유
-                          </button>
-                          <button onClick={() => handleDeleteQuiz(quiz.quizId, note.id)} className="nq-button border border-red-100 text-red-500 hover:bg-red-50 py-1.5 flex items-center gap-1 text-sm">
-                            <Trash2 size={14} /> 삭제
                           </button>
                         </div>
                       </div>

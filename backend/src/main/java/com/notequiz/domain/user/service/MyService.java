@@ -55,18 +55,6 @@ public class MyService {
                 .collect(Collectors.toList());
     }
 
-    public void deleteQuiz(String quizId) {
-        User user = getRequiredCurrentUser();
-        Quiz quiz = quizRepository.findByQuizId(quizId)
-                .orElseThrow(() -> new ApiException(ErrorCode.QUIZ_NOT_FOUND));
-        
-        if (quiz.getUser() == null || !quiz.getUser().getId().equals(user.getId())) {
-            throw new ApiException(ErrorCode.FORBIDDEN);
-        }
-        
-        quizRepository.delete(quiz);
-    }
-
     public String shareQuiz(String quizId) {
         User user = getRequiredCurrentUser();
         Quiz quiz = quizRepository.findByQuizId(quizId)
